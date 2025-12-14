@@ -397,7 +397,7 @@ st.markdown("""
         <h1 style='color: #00d4ff;'>🛡️ XYZ Company Security Portal</h1>
         <h3 style='color: #888;'>Hybrid AI + Rule-Based Threat Classification System</h3>
         <p style='color: #666;'>Powered by Machine Learning & Cognitive Computing</p>
-        <p style='font-size: 14px; margin-top: 10px;'>Created by <strong>Pranav Sarotra</strong></p>
+        <p style='font-size: 14px; color: #666;'>Created by <strong>Pranav Sarotra</strong></p>
     </div>
 """, unsafe_allow_html=True)
 
