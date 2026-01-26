@@ -1,0 +1,17 @@
+{
+    "metadata": {
+        "version": "1.0.0",
+        "description": "XYZ Company Threat Intelligence"
+    },
+    "ip_blacklist": [
+        "45.33.32.156",
+        "185.220.101.1"
+    ],
+    "domain_blacklist": [
+        "malware-domain.com",
+        "phishing-test.tk"
+    ],
+    "known_malware_hashes": {
+        "md5": ["44d88612fea8a8f36de82e1278abb02f"]
+    }
+}

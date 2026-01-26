@@ -1,0 +1,35 @@
+app:
+  name: "XYZ Company Security Portal"
+  version: "3.0.0"
+  author: "Pranav Sarotra"
+  debug: false
+
+model:
+  ml_weight: 0.6
+  rule_weight: 0.4
+  confidence_threshold: 0.7
+  vectorizer:
+    max_features: 5000
+    ngram_range: [1, 3]
+    min_df: 1
+    max_df: 0.95
+  random_forest:
+    n_estimators: 100
+    max_depth: 10
+    random_state: 42
+
+api_keys:
+  virustotal: ""
+  abuseipdb: ""
+  shodan: ""
+
+rate_limits:
+  ip_checks_per_minute: 30
+  url_checks_per_minute: 20
+
+database:
+  path: "data/scan_history.db"
+
+logging:
+  level: "INFO"
+  file: "logs/security_scanner.log"
