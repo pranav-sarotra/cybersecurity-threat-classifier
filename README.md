@@ -51,7 +51,7 @@ A comprehensive **Hybrid AI + Rule-Based** cybersecurity threat classification s
 
 
 ## 🧠 How It Works
-<img width="6988" height="4420" alt="image" src="https://github.com/user-attachments/assets/16ea3417-4a5c-4864-b063-197d781871d3" />
+<img width="6988" height="4420" alt="image" src="https://github.com/user-attachments/assets/ec650051-ddef-40f3-bfac-0687bf8a9830" />
 
 ## 📊 Threat Categories
 
