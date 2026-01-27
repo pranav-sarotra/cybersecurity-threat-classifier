@@ -51,46 +51,7 @@ A comprehensive **Hybrid AI + Rule-Based** cybersecurity threat classification s
 
 
 ## 🧠 How It Works
-
-                    INPUT TEXT/EMAIL/LOG
-                           │
-                           ▼
-    ┌──────────────────────────────────────────┐
-    │           HYBRID CLASSIFIER              │
-    │                                          │
-    │   ┌─────────────┐   ┌─────────────────┐  │
-    │   │ ML Ensemble │   │  Rule Engine    │  │
-    │   │             │   │                 │  │
-    │   │ • Naive     │   │ • 200+ Patterns │  │
-    │   │   Bayes     │   │ • Regex Rules   │  │
-    │   │ • Logistic  │   │ • Context       │  │
-    │   │   Regression│   │   Analysis      │  │
-    │   │ • Random    │   │ • Urgency       │  │
-    │   │   Forest    │   │   Detection     │  │
-    │   │ • Gradient  │   │                 │  │
-    │   │   Boosting  │   │                 │  │
-    │   │ • SVM       │   │                 │  │
-    │   └─────────────┘   └─────────────────┘  │
-    │          │                   │           │
-    │          ▼                   ▼           │
-    │   ML Probabilities    Rule Scores        │
-    │          │                   │           │
-    │          └─────────┬─────────┘           │
-    │                    ▼                     │
-    │     Weighted Combination (60/40)         │
-    └──────────────────────────────────────────┘
-                           │
-                           ▼
-    ┌──────────────────────────────────────────┐
-    │              FINAL OUTPUT                │
-    │                                          │
-    │  • Classification: Phishing/Malware/Safe │
-    │  • Confidence: 0-100%                    │
-    │  • Threat Level: Critical/High/Med/Low   │
-    │  • Detected Indicators                   │
-    │  • Security Recommendations              │
-    └──────────────────────────────────────────┘
-
+<img width="6988" height="4420" alt="image" src="https://github.com/user-attachments/assets/16ea3417-4a5c-4864-b063-197d781871d3" />
 
 ## 📊 Threat Categories
 
