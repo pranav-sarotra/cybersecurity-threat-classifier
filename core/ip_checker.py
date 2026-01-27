@@ -5,7 +5,7 @@ IP Address Checker Module with Shodan Integration.
 import re
 import ipaddress
 import socket
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 from dataclasses import dataclass, field
 from datetime import datetime
 
@@ -80,27 +80,12 @@ class IPChecker:
     DATACENTER_ASNS = ["AS14061", "AS16509", "AS15169", "AS8075", "AS13335", "AS16276", "AS24940"]
     VPN_ASNS = ["AS9009", "AS60068", "AS206092"]
     
-    # Suspicious ports that may indicate compromise or attack surface
     SUSPICIOUS_PORTS = {
-        21: "FTP",
-        22: "SSH",
-        23: "Telnet",
-        25: "SMTP",
-        53: "DNS",
-        110: "POP3",
-        135: "MSRPC",
-        139: "NetBIOS",
-        143: "IMAP",
-        445: "SMB",
-        1433: "MSSQL",
-        1434: "MSSQL Browser",
-        3306: "MySQL",
-        3389: "RDP",
-        5432: "PostgreSQL",
-        5900: "VNC",
-        6379: "Redis",
-        8080: "HTTP Proxy",
-        27017: "MongoDB",
+        21: "FTP", 22: "SSH", 23: "Telnet", 25: "SMTP", 53: "DNS",
+        110: "POP3", 135: "MSRPC", 139: "NetBIOS", 143: "IMAP",
+        445: "SMB", 1433: "MSSQL", 1434: "MSSQL Browser", 3306: "MySQL",
+        3389: "RDP", 5432: "PostgreSQL", 5900: "VNC", 6379: "Redis",
+        8080: "HTTP Proxy", 27017: "MongoDB",
     }
 
     def __init__(self, 
@@ -124,48 +109,30 @@ class IPChecker:
         self.custom_blacklist: set = set()
 
     def check_ip(self, ip: str, deep_scan: bool = True) -> IPInfo:
-        """
-        Perform comprehensive IP address check.
-        
-        Args:
-            ip: IP address to check
-            deep_scan: Whether to perform API-based checks
-            
-        Returns:
-            IPInfo object with all available information
-        """
+        """Perform comprehensive IP address check."""
         info = IPInfo(ip=ip.strip(), check_timestamp=datetime.now().isoformat())
 
-        # Basic validation
         if not self._validate_ip(ip, info):
             return info
 
-        # Local checks
         self._classify_ip(ip, info)
         self._reverse_dns(ip, info)
         self._check_local_blacklists(ip, info)
         self._check_malicious_ranges(ip, info)
 
-        # API-based checks
         if deep_scan and REQUESTS_AVAILABLE:
-            # Free geolocation
             self._geolocation_lookup(ip, info)
             
-            # AbuseIPDB (if key available)
             if self.abuseipdb_key:
                 self._abuseipdb_check(ip, info)
             
-            # Shodan (if key available)
             if self.shodan_key:
                 self._shodan_check(ip, info)
             
-            # VirusTotal (if key available)
             if self.virustotal_key:
                 self._virustotal_check(ip, info)
 
-        # Calculate final score
         self._calculate_threat_score(info)
-        
         return info
 
     def _validate_ip(self, ip: str, info: IPInfo) -> bool:
@@ -230,19 +197,16 @@ class IPChecker:
             info.errors.append(f"Range check error: {str(e)}")
 
     def _geolocation_lookup(self, ip: str, info: IPInfo) -> None:
-        """Get geolocation data from ip-api.com (free, no key required)."""
+        """Get geolocation data from ip-api.com."""
         try:
             response = requests.get(
                 f"http://ip-api.com/json/{ip}",
-                params={
-                    "fields": "status,country,countryCode,regionName,city,lat,lon,timezone,isp,org,as,proxy,hosting"
-                },
+                params={"fields": "status,country,countryCode,regionName,city,lat,lon,timezone,isp,org,as,proxy,hosting"},
                 timeout=self.timeout
             )
             
             if response.status_code == 200:
                 data = response.json()
-                
                 if data.get("status") == "success":
                     info.country = data.get("country", "")
                     info.country_code = data.get("countryCode", "")
@@ -256,15 +220,12 @@ class IPChecker:
                     info.asn = data.get("as", "").split()[0] if data.get("as") else ""
                     info.is_proxy = data.get("proxy", False)
                     info.is_datacenter = data.get("hosting", False)
-                    
                     info.data_sources.append("ip-api.com")
                     
-                    # Check ASN for datacenter/VPN
                     if info.asn in self.DATACENTER_ASNS:
                         info.is_datacenter = True
                     if info.asn in self.VPN_ASNS:
                         info.is_vpn = True
-                        
         except Exception as e:
             info.errors.append(f"Geolocation API error: {str(e)}")
 
@@ -272,7 +233,6 @@ class IPChecker:
         """Check IP reputation on AbuseIPDB."""
         try:
             headers = {"Key": self.abuseipdb_key, "Accept": "application/json"}
-            
             response = requests.get(
                 "https://api.abuseipdb.com/api/v2/check",
                 headers=headers,
@@ -282,7 +242,6 @@ class IPChecker:
             
             if response.status_code == 200:
                 data = response.json().get("data", {})
-                
                 info.abuse_confidence_score = data.get("abuseConfidenceScore", 0)
                 info.is_tor = data.get("isTor", False)
                 
@@ -297,21 +256,11 @@ class IPChecker:
                     info.blacklist_count += 1
                 
                 info.data_sources.append("AbuseIPDB")
-                
         except Exception as e:
             info.errors.append(f"AbuseIPDB API error: {str(e)}")
 
     def _shodan_check(self, ip: str, info: IPInfo) -> None:
-        """
-        Check IP on Shodan for open ports, services, and vulnerabilities.
-        
-        Shodan provides:
-        - Open ports and running services
-        - Known vulnerabilities (CVEs)
-        - Operating system detection
-        - Hostnames and domains
-        - Historical data
-        """
+        """Check IP on Shodan for open ports, services, and vulnerabilities."""
         try:
             response = requests.get(
                 f"https://api.shodan.io/shodan/host/{ip}",
@@ -322,27 +271,17 @@ class IPChecker:
             if response.status_code == 200:
                 data = response.json()
                 
-                # Open Ports
                 info.open_ports = data.get("ports", [])
-                
-                # Hostnames
                 info.hostnames = data.get("hostnames", [])
-                
-                # Operating System
                 info.os_guess = data.get("os", "")
-                
-                # Last Update
                 info.last_update = data.get("last_update", "")
                 
-                # Vulnerabilities (CVEs)
                 vulns = data.get("vulns", {})
                 if vulns:
                     info.vulns = list(vulns.keys())
-                    # Each vulnerability increases threat score significantly
                     info.threat_score += len(info.vulns) * 10
                     info.is_threat = True
                 
-                # Services running on each port
                 for item in data.get("data", []):
                     service_info = {
                         "port": item.get("port"),
@@ -353,25 +292,16 @@ class IPChecker:
                     }
                     info.services.append(service_info)
                 
-                # Check for suspicious open ports
-                suspicious_open = []
-                for port in info.open_ports:
-                    if port in self.SUSPICIOUS_PORTS:
-                        suspicious_open.append(f"{port} ({self.SUSPICIOUS_PORTS[port]})")
-                
+                suspicious_open = [p for p in info.open_ports if p in self.SUSPICIOUS_PORTS]
                 if suspicious_open:
                     info.threat_score += len(suspicious_open) * 3
                 
-                # Add to data sources
                 info.data_sources.append("Shodan")
                 
             elif response.status_code == 404:
-                # IP not found in Shodan database - not necessarily bad
                 info.data_sources.append("Shodan (no data)")
-                
             elif response.status_code == 401:
                 info.errors.append("Shodan API: Invalid API key")
-                
             elif response.status_code == 429:
                 info.errors.append("Shodan API: Rate limit exceeded")
                 
@@ -386,7 +316,6 @@ class IPChecker:
         """Check IP on VirusTotal."""
         try:
             headers = {"x-apikey": self.virustotal_key}
-            
             response = requests.get(
                 f"https://www.virustotal.com/api/v3/ip_addresses/{ip}",
                 headers=headers,
@@ -396,10 +325,8 @@ class IPChecker:
             if response.status_code == 200:
                 data = response.json().get("data", {})
                 attributes = data.get("attributes", {})
-                
                 stats = attributes.get("last_analysis_stats", {})
                 malicious = stats.get("malicious", 0)
-                suspicious = stats.get("suspicious", 0)
                 
                 if malicious > 0:
                     info.is_threat = True
@@ -407,21 +334,15 @@ class IPChecker:
                     info.blacklist_count += 1
                 
                 info.data_sources.append("VirusTotal")
-                
         except Exception as e:
             info.errors.append(f"VirusTotal API error: {str(e)}")
 
     def _calculate_threat_score(self, info: IPInfo) -> None:
         """Calculate overall threat score."""
         score = 0
-        
-        # Base score from abuse confidence
         score += info.abuse_confidence_score * 0.4
-        
-        # Blacklist contribution
         score += min(info.blacklist_count * 10, 30)
         
-        # Threat flags
         if info.is_known_attacker:
             score += 25
         if info.is_known_abuser:
@@ -437,18 +358,13 @@ class IPChecker:
         if info.is_datacenter:
             score += 3
         
-        # Shodan-based scoring
         if info.vulns:
             score += min(len(info.vulns) * 10, 30)
         
-        # Suspicious ports
         suspicious_port_count = sum(1 for p in info.open_ports if p in self.SUSPICIOUS_PORTS)
         score += min(suspicious_port_count * 3, 15)
         
-        # Cap at 100
         info.threat_score = min(score, 100)
-        
-        # Update reputation score
         info.reputation_score = max(0, 100 - info.threat_score)
 
     def extract_ips_from_text(self, text: str) -> List[str]:
@@ -458,7 +374,6 @@ class IPChecker:
         
         valid_ips = []
         seen = set()
-        
         for ip in matches:
             if ip not in seen:
                 try:
@@ -467,41 +382,26 @@ class IPChecker:
                     seen.add(ip)
                 except ValueError:
                     continue
-        
         return valid_ips
 
     def get_threat_summary(self, info: IPInfo) -> Dict:
         """Get a summary of the IP threat analysis."""
         if not info.is_valid:
-            return {
-                "status": "INVALID",
-                "message": "Invalid IP address format",
-                "threat_level": "UNKNOWN"
-            }
+            return {"status": "INVALID", "message": "Invalid IP address format", "threat_level": "UNKNOWN"}
         
         if info.ip_class == "private":
-            return {
-                "status": "PRIVATE",
-                "message": "Private IP address (RFC 1918)",
-                "threat_level": "N/A"
-            }
+            return {"status": "PRIVATE", "message": "Private IP address (RFC 1918)", "threat_level": "N/A"}
         
-        # Determine threat level
         if info.threat_score >= 75:
-            level = "CRITICAL"
-            color = "#ff0000"
+            level, color = "CRITICAL", "#ff0000"
         elif info.threat_score >= 50:
-            level = "HIGH"
-            color = "#ff4444"
+            level, color = "HIGH", "#ff4444"
         elif info.threat_score >= 25:
-            level = "MEDIUM"
-            color = "#ffaa00"
+            level, color = "MEDIUM", "#ffaa00"
         elif info.threat_score > 0:
-            level = "LOW"
-            color = "#ffcc00"
+            level, color = "LOW", "#ffcc00"
         else:
-            level = "NONE"
-            color = "#00ff88"
+            level, color = "NONE", "#00ff88"
         
         flags = []
         if info.is_known_attacker:
