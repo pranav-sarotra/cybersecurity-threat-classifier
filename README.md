@@ -10,7 +10,7 @@ A comprehensive **Hybrid AI + Rule-Based** cybersecurity threat classification s
 
 **Try the app here:** [cybersecurity-threat-classifier](https://cybersecurity-threat-classifier.streamlit.app/)
 
-<img width="2879" height="1919" alt="image" src="https://github.com/user-attachments/assets/bee64f22-6293-4e2e-9df8-dbd0ed6019cb" />
+<img width="2879" height="1919" alt="image" src="https://github.com/user-attachments/assets/929e9663-6a8e-4808-85fa-bcd3eb1907a2" />
 
 
 ## 🌟 Features
